@@ -1,9 +1,25 @@
-
+"use client";
+import { useState } from "react";
 
 export default function Home() {
+  const [result, setResult] = useState("");
+
+  const testAPI = async () => {
+    setResult("Thinking...");
+    const res = await fetch("/api/generate", {
+      method: "POST",
+      body: JSON.stringify({ topic: "Quantum Physics", interest: "Marvel Movies" }),
+    });
+    const data = await res.json();
+    setResult(JSON.stringify(data, null, 2));
+  };
+
   return (
-    <>
-    <h1 className="text-3xl font-bold underline">Hello Nigga</h1>
-    </>
+    <div className="p-10 bg-black text-white min-h-screen">
+      <button onClick={testAPI} className="bg-blue-500 p-4 rounded">
+        TEST BRAIN (Quantum + Marvel)
+      </button>
+      <pre className="mt-4 text-green-400 whitespace-pre-wrap">{result}</pre>
+    </div>
   );
 }

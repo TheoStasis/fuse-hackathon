@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import React, { useState } from "react";
 
 export default function Home() {
   const [result, setResult] = useState("");
@@ -8,7 +8,10 @@ export default function Home() {
     setResult("Thinking...");
     const res = await fetch("/api/generate", {
       method: "POST",
-      body: JSON.stringify({ topic: "Quantum Physics", interest: "Marvel Movies" }),
+      body: JSON.stringify({
+        topic: "Quantum Physics",
+        interest: "Marvel Movies",
+      }),
     });
     const data = await res.json();
     setResult(JSON.stringify(data, null, 2));

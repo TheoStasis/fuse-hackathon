@@ -8,17 +8,20 @@ export async function POST(req: Request) {
   try {
     // 2. Parse the User's Input
     const body = await req.json();
-    const { topic, interest } = body; 
+    const { topic, interest } = body;
     // Example: topic="Blockchain", interest="Cricket"
-
+    console.log(req.body);
     if (!topic || !interest) {
-      return NextResponse.json({ error: "Missing topic or interest" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing topic or interest" },
+        { status: 400 }
+      );
     }
 
     // 3. Select the Model (Gemini 1.5 Flash is fast & free)
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-    // 4. AGENT 1: The "Mapper" 
+    // 4. AGENT 1: The "Mapper"
     // This agent finds the connections between the two topics.
     const mapperPrompt = `
       You are an expert at analogies. 
@@ -42,7 +45,7 @@ export async function POST(req: Request) {
 
     const mapperResult = await model.generateContent(mapperPrompt);
     const mappingText = mapperResult.response.text();
-    
+
     // Clean up JSON (sometimes AI adds backticks)
     const cleanJson = mappingText.replace(/```json|```/g, "").trim();
 
@@ -66,13 +69,15 @@ export async function POST(req: Request) {
     const finalExplanation = explainerResult.response.text();
 
     // 6. Return the result to the Frontend
-    return NextResponse.json({ 
+    return NextResponse.json({
       analogy: finalExplanation,
-      raw_mapping: JSON.parse(cleanJson) // We send this back too, in case we want to show the "Logic" later!
+      raw_mapping: JSON.parse(cleanJson), // We send this back too, in case we want to show the "Logic" later!
     });
-
   } catch (error) {
     console.error("AI Error:", error);
-    return NextResponse.json({ error: "Failed to generate analogy" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to generate analogy" },
+      { status: 500 }
+    );
   }
 }

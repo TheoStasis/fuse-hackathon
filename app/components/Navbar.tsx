@@ -27,7 +27,7 @@ export default function Navbar({ isSignedIn = false }: NavbarProps) {
         {/* Links Section */}
         <div className="flex items-center gap-6 text-sm font-medium text-gray-400">
           
-          <a href="#" className="hover:text-white transition-colors">About</a>
+          <Link href="/about" className="hover:text-white transition-colors">About</Link>
           <a 
             href="https://github.com/TheoStasis" 
             target="_blank" 

@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // 3. Select the Model (Gemini 1.5 Flash is fast & free)
+    
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     // 4. AGENT 1: The "Mapper"

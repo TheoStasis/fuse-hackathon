@@ -14,14 +14,28 @@ export default function Home() {
   const [result, setResult] = useState<any>(null);
   const splineRef = useRef<any>(null); 
 
-  const testAPI = async () => {
-    setResult("Thinking...");
-    const res = await fetch("/api/generate", {
-      method: "POST",
-      body: JSON.stringify({ topic: "Quantum Physics", interest: "Marvel Movies" }),
-    });
-    const data = await res.json();
-    setResult(JSON.stringify(data, null, 2));
+  const handleGenerate = async () => {
+    if (!topic || !interest) return; 
+    
+    setLoading(true);
+    setResult(null); 
+
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic, interest }),
+      });
+      
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      
+      setResult(data); 
+    } catch {
+      alert("AI Brain Freeze! Try again.");
+    } finally {
+      setLoading(false); 
+    }
   };
 
   return (

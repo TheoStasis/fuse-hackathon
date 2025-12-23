@@ -43,7 +43,7 @@ export default function Home() {
       {/* LAYER 0: SPLINE BACKGROUND (Must receive events)      */}
       {/* ----------------------------------------------------- */}
       {/* Removed 'pointer-events-none' so Spline can detect hover */}
-      <div className="fixed inset-0 z-0 opacity-60">
+      <div className="fixed inset-0 z-0 opacity-60 bg-[#050405]">
          <Spline 
            scene="https://prod.spline.design/qtPsCb7GXPdQivBA/scene.splinecode"
            onLoad={(spline: any) => {

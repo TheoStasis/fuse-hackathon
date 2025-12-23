@@ -1,7 +1,12 @@
 "use client";
+import Link from "next/link";
 import { Sparkles, Github } from "lucide-react";
 
-export default function Navbar() {
+interface NavbarProps {
+  isSignedIn?: boolean;
+}
+
+export default function Navbar({ isSignedIn = false }: NavbarProps) {
   return (
     <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-2xl">
       <div className="flex items-center justify-between px-6 py-3 rounded-full border border-white/10 bg-black/40 backdrop-blur-md shadow-2xl">
@@ -16,7 +21,9 @@ export default function Navbar() {
 
         {/* Links Section */}
         <div className="flex items-center gap-6 text-sm font-medium text-gray-400">
-          <a href="#" className="hover:text-white transition-colors">History</a>
+          {isSignedIn && (
+            <Link href="../history" className="hover:text-white transition-colors">History</Link>
+          )}
           <a href="#" className="hover:text-white transition-colors">About</a>
           <a 
             href="https://github.com/TheoStasis" 

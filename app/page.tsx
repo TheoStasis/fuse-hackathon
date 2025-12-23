@@ -47,7 +47,7 @@ export default function Home() {
       {/* Removed 'pointer-events-none' so Spline can detect hover */}
       <div className="fixed inset-0 z-0 opacity-60 bg-[#050405]">
          <Spline 
-           scene="https://prod.spline.design/qtPsCb7GXPdQivBA/scene.splinecode"
+           scene="https://prod.spline.design/vGQwr-uT48fPnPpM/scene.splinecode"  //https://prod.spline.design/qtPsCb7GXPdQivBA/scene.splinecode
            onLoad={(spline: any) => {
              splineRef.current = spline;
            }}

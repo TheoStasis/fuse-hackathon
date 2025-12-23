@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
-import { Sparkles, Github, LogOut } from "lucide-react";
+import { Sparkles, LogOut } from "lucide-react";
 
 interface NavbarProps {
   isSignedIn?: boolean;
@@ -28,14 +28,6 @@ export default function Navbar({ isSignedIn = false }: NavbarProps) {
         <div className="flex items-center gap-6 text-sm font-medium text-gray-400">
           
           <Link href="/about" className="hover:text-white transition-colors">About</Link>
-          <a 
-            href="https://github.com/TheoStasis" 
-            target="_blank" 
-            className="text-white bg-white/10 px-4 py-2 rounded-full hover:bg-white/20 transition-all flex items-center gap-2"
-          >
-            <Github className="w-4 h-4" />
-            <span>Star</span>
-          </a>
           {isSignedIn && (
             <>
               <Link href="../history" className="hover:text-white transition-colors">History</Link>

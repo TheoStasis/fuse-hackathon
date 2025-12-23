@@ -1,28 +1,134 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useSession, signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Navbar from "./components/Navbar";
 import Spline from '@splinetool/react-spline';
 import ExpandableNode from "./components/ExpandableNode";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Zap, BookOpen, Heart, ArrowRight, Mail, Lock } from "lucide-react";
 
-type View = "LANDING" | "AUTH" | "APP";
+type View = "LANDING" | "AUTH" | "APP" | "SIGN_UP";
 
 export default function Home() {
+  // Hooks
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
   // View State
   const [view, setView] = useState<View>("LANDING");
 
   // Auth State
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   // App State
   const [topic, setTopic] = useState("");
   const [interest, setInterest] = useState(""); 
-  const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
-  const splineRef = useRef<any>(null); 
+  const splineRef = useRef<any>(null);
+
+  // Handle session changes
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      setView("APP");
+    } else if (status === "unauthenticated") {
+      setView("LANDING");
+    }
+  }, [status, session]);
+
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError(result.error);
+      } else if (result?.ok) {
+        setEmail("");
+        setPassword("");
+        setView("APP");
+      }
+    } catch (err: any) {
+      setError(err.message || "Sign in failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      await signIn("google", { redirect: false });
+    } catch (err: any) {
+      setError(err.message || "Google sign in failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!username || !email || !password) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/sign-up", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Sign up failed");
+      } else {
+        // Account created successfully, now sign in
+        setUsername("");
+        setEmail("");
+        setPassword("");
+        
+        const signInResult = await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+        });
+
+        if (signInResult?.error) {
+          setError(signInResult.error);
+        } else if (signInResult?.ok) {
+          setView("APP");
+        }
+      }
+    } catch (err: any) {
+      setError(err.message || "Sign up failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!topic || !interest) return; 
@@ -59,18 +165,6 @@ export default function Home() {
     }
   };
 
-  const handleSignIn = () => {
-    // Simulate login - in production, this would validate credentials
-    if (email && password) {
-      setView("APP");
-    }
-  };
-
-  const handleGoogleSignIn = () => {
-    // Dummy Google sign-in - implement OAuth later
-    setView("APP");
-  };
-
   return (
     <main className="min-h-screen bg-black relative selection:bg-blue-500/30 font-sans">
       
@@ -90,7 +184,7 @@ export default function Home() {
       {/* LAYER 1: NAVBAR (Conditional - Hidden on AUTH view)   */}
       {/* ----------------------------------------------------- */}
       <AnimatePresence>
-        {view !== "AUTH" && (
+        {view !== "AUTH" && view !== "SIGN_UP" && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -142,9 +236,9 @@ export default function Home() {
           )}
 
           {/* ============================================ */}
-          {/* VIEW 2: AUTH (Sign In)                       */}
+          {/* VIEW 2: AUTH & SIGN_UP                       */}
           {/* ============================================ */}
-          {view === "AUTH" && (
+          {(view === "AUTH" || view === "SIGN_UP") && (
             <motion.div
               key="auth"
               initial={{ opacity: 0, y: 20 }}
@@ -160,9 +254,38 @@ export default function Home() {
                 
                 {/* Header */}
                 <div className="text-center mb-8">
-                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Welcome Back</h2>
-                  <p className="text-gray-400">Sign in to continue your learning journey</p>
+                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                    {view === "AUTH" ? "Welcome Back" : "Create Account"}
+                  </h2>
+                  <p className="text-gray-400">
+                    {view === "AUTH" 
+                      ? "Sign in to continue your learning journey" 
+                      : "Join us and start learning smarter"}
+                  </p>
                 </div>
+
+                {/* Error Message */}
+                {error && (
+                  <div className="mb-6 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-300 text-sm">
+                    {error}
+                  </div>
+                )}
+
+                {/* Username Input (Sign Up Only) */}
+                {view === "SIGN_UP" && (
+                  <div className="mb-6">
+                    <label className="block text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">
+                      Username
+                    </label>
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="your_username"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-blue-500/50 transition-colors"
+                    />
+                  </div>
+                )}
 
                 {/* Email Input */}
                 <div className="mb-6">
@@ -198,13 +321,20 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Sign In Button */}
+                {/* Submit Button */}
                 <button
-                  onClick={handleSignIn}
-                  disabled={!email || !password}
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-4 rounded-xl hover:shadow-[0_0_40px_-10px_rgba(59,130,246,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed mb-4"
+                  onClick={view === "AUTH" ? handleSignIn : handleSignUp}
+                  disabled={loading || (view === "AUTH" ? !email || !password : !username || !email || !password)}
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-4 rounded-xl hover:shadow-[0_0_40px_-10px_rgba(59,130,246,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed mb-4 flex items-center justify-center gap-2"
                 >
-                  Sign In
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      {view === "AUTH" ? "Signing in..." : "Creating account..."}
+                    </>
+                  ) : (
+                    view === "AUTH" ? "Sign In" : "Create Account"
+                  )}
                 </button>
 
                 {/* Divider */}
@@ -217,7 +347,8 @@ export default function Home() {
                 {/* Google Sign In */}
                 <button
                   onClick={handleGoogleSignIn}
-                  className="w-full bg-white/5 border border-white/10 text-white font-bold py-4 rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-3"
+                  disabled={loading}
+                  className="w-full bg-white/5 border border-white/10 text-white font-bold py-4 rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -227,6 +358,37 @@ export default function Home() {
                   </svg>
                   Sign in with Google
                 </button>
+
+                {/* Toggle Sign Up / Sign In */}
+                <div className="mt-8 text-center text-gray-400 text-sm">
+                  {view === "AUTH" ? (
+                    <>
+                      Don't have an account?{" "}
+                      <button
+                        onClick={() => {
+                          setView("SIGN_UP");
+                          setError("");
+                        }}
+                        className="text-blue-400 hover:text-blue-300 transition-colors font-semibold"
+                      >
+                        Sign Up
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      Already have an account?{" "}
+                      <button
+                        onClick={() => {
+                          setView("AUTH");
+                          setError("");
+                        }}
+                        className="text-blue-400 hover:text-blue-300 transition-colors font-semibold"
+                      >
+                        Sign In
+                      </button>
+                    </>
+                  )}
+                </div>
 
               </div>
             </motion.div>

@@ -30,7 +30,19 @@ export default function Home() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       
-      setResult(data); 
+      setResult(data);
+      
+      // Save to history
+      try {
+        await fetch("/api/history", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ topic, interest, result: data }),
+        });
+      } catch (historyError) {
+        // Silently fail - history saving shouldn't break the main flow
+        console.error("Failed to save history:", historyError);
+      }
     } catch {
       alert("AI Brain Freeze! Try again.");
     } finally {

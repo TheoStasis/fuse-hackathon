@@ -17,12 +17,12 @@ export default function Navbar({ isSignedIn = false }: NavbarProps) {
       <div className="flex items-center justify-between px-6 py-3 rounded-full border border-white/10 bg-black/40 backdrop-blur-md shadow-2xl">
         
         {/* Logo Section */}
-        <div className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
           <div className="bg-blue-500/20 p-2 rounded-full">
             <Sparkles className="w-4 h-4 text-blue-400" />
           </div>
           <span className="font-bold text-white tracking-wide">FUSE</span>
-        </div>
+        </Link>
 
         {/* Links Section */}
         <div className="flex items-center gap-6 text-sm font-medium text-gray-400">

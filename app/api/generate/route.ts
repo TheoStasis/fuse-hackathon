@@ -1,83 +1,54 @@
+// app/api/generate/route.ts
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
-// 1. Setup the Gemini Client
+// Ensure this matches your working key setup
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" }); // Use your working model
 
 export async function POST(req: Request) {
   try {
-    // 2. Parse the User's Input
     const body = await req.json();
     const { topic, interest } = body;
-    // Example: topic="Blockchain", interest="Cricket"
-    console.log(req.body);
-    if (!topic || !interest) {
-      return NextResponse.json(
-        { error: "Missing topic or interest" },
-        { status: 400 }
-      );
-    }
 
-    
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
-    // 4. AGENT 1: The "Mapper"
-    // This agent finds the connections between the two topics.
-    const mapperPrompt = `
-      You are an expert at analogies. 
-      Task: Map the technical concept of '${topic}' to the domain of '${interest}'.
+    const prompt = `
+      You are an expert educational engine.
+      Explain the concept "${topic}" using a strict analogy to "${interest}".
       
-      Requirement:
-      1. Identify 3 key components of '${topic}'.
-      2. Find 3 equivalent counterparts in '${interest}'.
-      
-      Output JSON ONLY:
+      RETURN JSON ONLY. Do not use Markdown. Structure:
       {
-        "concept": "${topic}",
-        "domain": "${interest}",
-        "mappings": [
-          { "technical": "Key Term 1", "analogy": "Analogy Term 1", "reason": "Why?" },
-          { "technical": "Key Term 2", "analogy": "Analogy Term 2", "reason": "Why?" },
-          { "technical": "Key Term 3", "analogy": "Analogy Term 3", "reason": "Why?" }
-        ]
+        "analogy": "A fun, engaging paragraph explaining the connection like a story.",
+        "raw_mapping": {
+          "concept": "${topic}",
+          "domain": "${interest}",
+          "mappings": [
+            {
+              "technical_term": "Exact Concept Name",
+              "technical_definition": "A 2-sentence sophisticated academic definition.",
+              "analogy_term": "Analogy Equivalent",
+              "analogy_explanation": "Why this specific analogy fits perfectly.",
+              "code_analogy_left": "A pseudo-code or math equation for the technical side (e.g. F = ma)",
+              "code_analogy_right": "A pseudo-code equation for the analogy side (e.g. Impact = Punch * Speed)"
+            },
+            {
+              "technical_term": "Next Concept...",
+              ... (generate 3 solid mappings)
+            }
+          ]
+        }
       }
     `;
 
-    const mapperResult = await model.generateContent(mapperPrompt);
-    const mappingText = mapperResult.response.text();
-
-    // Clean up JSON (sometimes AI adds backticks)
-    const cleanJson = mappingText.replace(/```json|```/g, "").trim();
-
-    // 5. AGENT 2: The "Explainer"
-    // This agent takes the map and writes the final story.
-    const explainerPrompt = `
-      You are a fun, engaging teacher.
-      
-      Context: A student loves '${interest}' but struggles with '${topic}'.
-      Use this mapping data to explain '${topic}' to them:
-      ${cleanJson}
-
-      Instructions:
-      - Write a short, punchy explanation (max 4 sentences).
-      - Use the specific analogies from the mapping.
-      - Start with a catchy hook related to '${interest}'.
-      - Do NOT mention "I have mapped this". Just teach.
-    `;
-
-    const explainerResult = await model.generateContent(explainerPrompt);
-    const finalExplanation = explainerResult.response.text();
-
-    // 6. Return the result to the Frontend
-    return NextResponse.json({
-      analogy: finalExplanation,
-      raw_mapping: JSON.parse(cleanJson), // We send this back too, in case we want to show the "Logic" later!
-    });
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text();
+    
+    // Clean up the response if Gemini adds ```json markers
+    const cleanedText = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
+    
+    return NextResponse.json(JSON.parse(cleanedText));
+    
   } catch (error) {
-    console.error("AI Error:", error);
-    return NextResponse.json(
-      { error: "Failed to generate analogy" },
-      { status: 500 }
-    );
+    console.error(error);
+    return NextResponse.json({ error: "Failed to generate analogy" }, { status: 500 });
   }
 }

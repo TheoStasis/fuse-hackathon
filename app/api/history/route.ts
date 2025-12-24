@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
 import History from "@/app/models/History";
+import mongoose from "mongoose";
 
 // GET - Fetch history for user
 export async function GET() {
@@ -11,7 +12,7 @@ export async function GET() {
     const session = await getServerSession(authOptions);
 
     // Check if user is authenticated
-    if (!session?.user?._id) {
+    if (!session?.user?._id || !mongoose.Types.ObjectId.isValid(session.user._id)) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
         { status: 401 }
@@ -19,9 +20,11 @@ export async function GET() {
     }
 
     await dbConnect();
+
+    const userObjectId = new mongoose.Types.ObjectId(session.user._id);
     
     // Fetch history entries for the authenticated user, sorted by newest first
-    const history = await History.find({ userId: session.user._id })
+    const history = await History.find({ userId: userObjectId })
       .sort({ createdAt: -1 })
       .limit(50) // Limit to 50 most recent entries
       .lean(); // Return plain JS objects
@@ -42,7 +45,7 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
 
     // Check if user is authenticated
-    if (!session?.user?._id) {
+    if (!session?.user?._id || !mongoose.Types.ObjectId.isValid(session.user._id)) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
         { status: 401 }
@@ -60,10 +63,12 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+
+    const userObjectId = new mongoose.Types.ObjectId(session.user._id);
     
     // Create new history entry for the authenticated user
     const historyEntry = new History({
-      userId: session.user._id,
+      userId: userObjectId,
       topic,
       interest,
       result,
@@ -89,6 +94,15 @@ export async function POST(req: Request) {
 // DELETE - Delete a history entry by ID
 export async function DELETE(req: Request) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?._id || !mongoose.Types.ObjectId.isValid(session.user._id)) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     await dbConnect();
     
     const { searchParams } = new URL(req.url);
@@ -101,8 +115,9 @@ export async function DELETE(req: Request) {
       );
     }
     
-    const deleted = await History.findOneAndDelete({ 
+    const deleted = await History.findOneAndDelete({
       _id: id,
+      userId: new mongoose.Types.ObjectId(session.user._id),
     });
     
     if (!deleted) {

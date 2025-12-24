@@ -2,24 +2,27 @@
 
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
-import Spline from '@splinetool/react-spline';
+import Spline from "@splinetool/react-spline";
 import Link from "next/link";
 import { ArrowLeft, Zap, Brain, BookOpen } from "lucide-react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../api/auth/[...nextauth]/options";
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const session = await getServerSession(authOptions);
+
+  const isSignedIn = session ? true : false;
+
   return (
     <main className="min-h-screen bg-black relative selection:bg-blue-500/30 font-sans">
-      
       {/* Spline Background */}
       <div className="fixed inset-0 z-0 opacity-60 bg-[#050405]">
-        <Spline 
-          scene="https://prod.spline.design/vGQwr-uT48fPnPpM/scene.splinecode"
-        />
+        <Spline scene="https://prod.spline.design/vGQwr-uT48fPnPpM/scene.splinecode" />
       </div>
 
       {/* Navbar */}
       <div className="pointer-events-auto relative z-10">
-        <Navbar isSignedIn={false} />
+        <Navbar isSignedIn={isSignedIn} />
       </div>
 
       {/* Content */}
@@ -30,7 +33,6 @@ export default function AboutPage() {
           transition={{ duration: 0.8 }}
           className="max-w-3xl mx-auto pointer-events-auto"
         >
-          
           {/* Header */}
           <div className="text-center mb-16">
             <h1 className="text-6xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/40 mb-6">
@@ -43,7 +45,6 @@ export default function AboutPage() {
 
           {/* Main Content */}
           <div className="space-y-12">
-            
             {/* What is FUSE */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -60,9 +61,10 @@ export default function AboutPage() {
                     What is FUSE?
                   </h2>
                   <p className="text-gray-300 leading-relaxed text-lg">
-                    FUSE is an AI-powered analogy generator that transforms the way you learn. 
-                    Connect any complex topic to anything you're passionate about. Our intelligent 
-                    system creates vivid, memorable analogies that make difficult concepts click.
+                    FUSE is an AI-powered analogy generator that transforms the
+                    way you learn. Connect any complex topic to anything you're
+                    passionate about. Our intelligent system creates vivid,
+                    memorable analogies that make difficult concepts click.
                   </p>
                 </div>
               </div>
@@ -84,9 +86,10 @@ export default function AboutPage() {
                     How It Works
                   </h2>
                   <p className="text-gray-300 leading-relaxed text-lg">
-                    Pick a topic you want to understand. Tell us what you love. 
-                    Watch as FUSE crafts a brilliant analogy that bridges the gap between the unknown 
-                    and what sets your heart on fire. Learning becomes an adventure.
+                    Pick a topic you want to understand. Tell us what you love.
+                    Watch as FUSE crafts a brilliant analogy that bridges the
+                    gap between the unknown and what sets your heart on fire.
+                    Learning becomes an adventure.
                   </p>
                 </div>
               </div>
@@ -108,14 +111,15 @@ export default function AboutPage() {
                     Why FUSE?
                   </h2>
                   <p className="text-gray-300 leading-relaxed text-lg">
-                    Traditional learning is forgotten. Personalized analogies stick. By connecting 
-                    concepts to your passions, we tap into what makes your brain light up—creating 
-                    knowledge that lasts. Your learning journey is unique. So should your education.
+                    Traditional learning is forgotten. Personalized analogies
+                    stick. By connecting concepts to your passions, we tap into
+                    what makes your brain light up—creating knowledge that
+                    lasts. Your learning journey is unique. So should your
+                    education.
                   </p>
                 </div>
               </div>
             </motion.div>
-
           </div>
 
           {/* CTA Section */}
@@ -132,14 +136,14 @@ export default function AboutPage() {
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-full blur-xl group-hover:blur-2xl transition-all" />
               <div className="relative flex items-center gap-2">
                 <ArrowLeft className="w-5 h-5 text-white group-hover:-translate-x-2 transition-transform" />
-                <span className="text-lg font-bold text-white">Back to Home</span>
+                <span className="text-lg font-bold text-white">
+                  Back to Home
+                </span>
               </div>
             </Link>
           </motion.div>
-
         </motion.div>
       </div>
-
     </main>
   );
 }

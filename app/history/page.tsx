@@ -9,7 +9,6 @@ import ExpandableNode from "../components/ExpandableNode";
 import { Clock, Trash2, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import Spline from '@splinetool/react-spline';
-import Footer from "../components/Footer";
 
 interface HistoryEntry {
   _id: string;
@@ -89,6 +88,10 @@ export default function HistoryPage() {
     });
   };
 
+  const handleBackgroundClick = () => {
+    setSelectedEntry(null);
+  };
+
   return (
     <main className="min-h-screen bg-black relative selection:bg-blue-500/30 font-sans">
       
@@ -148,7 +151,10 @@ export default function HistoryPage() {
             </div>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 gap-6 pointer-events-auto">
+          <div
+            className="grid md:grid-cols-2 gap-6 pointer-events-auto"
+            onClick={handleBackgroundClick}
+          >
             {/* History List */}
             <div className="space-y-4">
               {history.map((entry) => (
@@ -161,7 +167,14 @@ export default function HistoryPage() {
                       ? "border-blue-500/50 shadow-[0_0_40px_-10px_rgba(59,130,246,0.4)]"
                       : "border-white/10 hover:border-blue-500/30"
                   }`}
-                  onClick={() => setSelectedEntry(entry)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (selectedEntry?._id === entry._id) {
+                      setSelectedEntry(null);
+                    } else {
+                      setSelectedEntry(entry);
+                    }
+                  }}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
@@ -199,6 +212,7 @@ export default function HistoryPage() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                   className="sticky top-32"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <div className="bg-neutral-900/60 backdrop-blur-md border border-white/10 rounded-3xl overflow-hidden">
                     
@@ -208,7 +222,6 @@ export default function HistoryPage() {
                         <div>
                           <div className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-1">
                             {selectedEntry.topic}
-                      <Footer />
                           </div>
                           <div className="text-xs font-bold text-purple-400 uppercase tracking-wider">
                             {selectedEntry.interest}

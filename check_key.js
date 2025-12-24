@@ -14,7 +14,8 @@ const SUSPECTS = [
   "gemini-pro",
   "gemini-1.0-pro",
   "gemini-1.0-pro-latest",
-  "gemini-2.0-flash-exp", // The newest experimental one
+  "gemini-2.0-flash-exp",
+  "gemini-3-flash-preview", // The newest experimental one
 ];
 
 async function check(modelName) {

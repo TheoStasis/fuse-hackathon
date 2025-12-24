@@ -6,6 +6,7 @@ import Spline from "@splinetool/react-spline";
 import Link from "next/link";
 import { ArrowLeft, Zap, Brain, BookOpen } from "lucide-react";
 import { useSession } from "next-auth/react";
+import Footer from "../components/Footer";
 
 export default function AboutPage() {
   const { status } = useSession();
@@ -141,6 +142,9 @@ export default function AboutPage() {
           </motion.div>
         </motion.div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </main>
   );
 }

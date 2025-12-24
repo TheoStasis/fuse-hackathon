@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import Spline from "@splinetool/react-spline";
 import ExpandableNode from "./components/ExpandableNode";
 import { motion, AnimatePresence } from "framer-motion";
@@ -523,7 +524,9 @@ export default function Home() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-    </main>
+          </div>
+
+          <Footer />
+        </main>
   );
 }

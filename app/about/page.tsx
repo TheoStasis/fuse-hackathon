@@ -18,7 +18,7 @@ export default function AboutPage() {
       </div>
 
       {/* Navbar */}
-      <div className="pointer-events-auto relative z-10">
+      <div className="pointer-events-auto">
         <Navbar isSignedIn={isSignedIn} />
       </div>
 

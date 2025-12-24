@@ -14,6 +14,8 @@ export async function POST(req: Request) {
     const prompt = `
       You are an expert educational engine.
       Explain the concept "${topic}" using a strict analogy to "${interest}".
+      First, self-verify your analogy mappings for internal consistency and factual accuracy.
+      Based on your self-check, include a verification status and confidence score.
       
       RETURN JSON ONLY. Do not use Markdown. Structure:
       {
@@ -21,6 +23,8 @@ export async function POST(req: Request) {
         "raw_mapping": {
           "concept": "${topic}",
           "domain": "${interest}",
+          "verification_status": "Verified Accurate",
+          "confidence_score": "98%",
           "mappings": [
             {
               "technical_term": "Exact Concept Name",
@@ -32,7 +36,11 @@ export async function POST(req: Request) {
             },
             {
               "technical_term": "Next Concept...",
-              ... (generate 3 solid mappings)
+              "technical_definition": "...",
+              "analogy_term": "...",
+              "analogy_explanation": "...",
+              "code_analogy_left": "...",
+              "code_analogy_right": "..."
             }
           ]
         }

@@ -7,7 +7,7 @@ import Link from "next/link";
 import { ArrowLeft, Zap, Brain, BookOpen } from "lucide-react";
 import { useSession } from "next-auth/react";
 
-export default async function AboutPage() {
+export default function AboutPage() {
   const { status } = useSession();
   const isSignedIn = status === "authenticated";
   return (

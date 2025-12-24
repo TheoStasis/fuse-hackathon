@@ -93,10 +93,10 @@ export default function HistoryPage() {
   };
 
   return (
-    <main className="min-h-screen bg-black relative selection:bg-blue-500/30 font-sans">
+    <main className="min-h-screen bg-[#09090B] relative selection:bg-blue-500/30 font-sans">
       
       {/* Spline Background */}
-      <div className="fixed inset-0 z-0 opacity-60 bg-[#050405]">
+      <div className="fixed inset-0 z-0 bg-[#09090B]">
         <Spline 
           scene="https://prod.spline.design/vGQwr-uT48fPnPpM/scene.splinecode"
           onLoad={(spline: any) => {

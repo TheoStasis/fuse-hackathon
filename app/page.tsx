@@ -197,7 +197,7 @@ export default function Home() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="pointer-events-auto relative z-10"
+            className="pointer-events-auto relative z-11"
           >
             <Navbar isSignedIn={view === "APP"} />
           </motion.div>

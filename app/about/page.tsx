@@ -5,14 +5,11 @@ import Navbar from "../components/Navbar";
 import Spline from "@splinetool/react-spline";
 import Link from "next/link";
 import { ArrowLeft, Zap, Brain, BookOpen } from "lucide-react";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../api/auth/[...nextauth]/options";
+import { useSession } from "next-auth/react";
 
 export default async function AboutPage() {
-  const session = await getServerSession(authOptions);
-
-  const isSignedIn = session ? true : false;
-
+  const { status } = useSession();
+  const isSignedIn = status === "authenticated";
   return (
     <main className="min-h-screen bg-black relative selection:bg-blue-500/30 font-sans">
       {/* Spline Background */}

@@ -9,6 +9,7 @@ import ExpandableNode from "../components/ExpandableNode";
 import { Clock, Trash2, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import Spline from '@splinetool/react-spline';
+import Footer from "../components/Footer";
 
 interface HistoryEntry {
   _id: string;
@@ -207,6 +208,7 @@ export default function HistoryPage() {
                         <div>
                           <div className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-1">
                             {selectedEntry.topic}
+                      <Footer />
                           </div>
                           <div className="text-xs font-bold text-purple-400 uppercase tracking-wider">
                             {selectedEntry.interest}

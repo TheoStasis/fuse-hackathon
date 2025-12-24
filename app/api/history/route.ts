@@ -1,18 +1,27 @@
 // app/api/history/route.ts
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
 import History from "@/app/models/History";
-
-// Dummy user ID - will be replaced with actual auth later
-const DUMMY_USER_ID = "000000000000000000000000"; // 24 char ObjectId format
 
 // GET - Fetch history for user
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions);
+
+    // Check if user is authenticated
+    if (!session?.user?._id) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     await dbConnect();
     
-    // Fetch history entries, sorted by newest first
-    const history = await History.find({ userId: DUMMY_USER_ID })
+    // Fetch history entries for the authenticated user, sorted by newest first
+    const history = await History.find({ userId: session.user._id })
       .sort({ createdAt: -1 })
       .limit(50) // Limit to 50 most recent entries
       .lean(); // Return plain JS objects
@@ -30,6 +39,16 @@ export async function GET() {
 // POST - Save a new history entry
 export async function POST(req: Request) {
   try {
+    const session = await getServerSession(authOptions);
+
+    // Check if user is authenticated
+    if (!session?.user?._id) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     await dbConnect();
     
     const body = await req.json();
@@ -42,9 +61,9 @@ export async function POST(req: Request) {
       );
     }
     
-    // Create new history entry
+    // Create new history entry for the authenticated user
     const historyEntry = new History({
-      userId: DUMMY_USER_ID,
+      userId: session.user._id,
       topic,
       interest,
       result,
@@ -83,8 +102,7 @@ export async function DELETE(req: Request) {
     }
     
     const deleted = await History.findOneAndDelete({ 
-      _id: id, 
-      userId: DUMMY_USER_ID 
+      _id: id,
     });
     
     if (!deleted) {

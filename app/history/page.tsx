@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../components/Navbar";
 import ExpandableNode from "../components/ExpandableNode";
@@ -22,15 +24,26 @@ interface HistoryEntry {
 }
 
 export default function HistoryPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEntry, setSelectedEntry] = useState<HistoryEntry | null>(null);
   const [splineRef, setSplineRef] = useState<any>(null);
 
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
+
   // Fetch history on mount
   useEffect(() => {
-    fetchHistory();
-  }, []);
+    if (status === "authenticated") {
+      fetchHistory();
+    }
+  }, [status]);
 
   const fetchHistory = async () => {
     try {
@@ -92,7 +105,7 @@ export default function HistoryPage() {
       <div className="relative z-10 pt-32 pb-20 px-6 max-w-6xl mx-auto min-h-screen">
         
         <div className="pointer-events-auto">
-          <Navbar />
+          <Navbar isSignedIn={status === "authenticated"} />
         </div>
 
         {/* Header */}

@@ -2,7 +2,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // 👇 PASTE YOUR KEY HERE 👇
-const API_KEY = ""; 
+const API_KEY = process.env.GEMINI_API_KEY;
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
@@ -14,7 +14,7 @@ const SUSPECTS = [
   "gemini-pro",
   "gemini-1.0-pro",
   "gemini-1.0-pro-latest",
-  "gemini-2.0-flash-exp" // The newest experimental one
+  "gemini-2.0-flash-exp", // The newest experimental one
 ];
 
 async function check(modelName) {
@@ -46,7 +46,9 @@ async function run() {
       return;
     }
   }
-  console.log("\n💀 All failed. Your API Key might be invalid or region-locked.");
+  console.log(
+    "\n💀 All failed. Your API Key might be invalid or region-locked."
+  );
 }
 
 run();
